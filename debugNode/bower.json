@@ -1,0 +1,16 @@
+{
+  "name": "nodePlot",
+  "version": "0.0.0",
+  "authors": [
+    "anne"
+  ],
+  "dependencies": {
+    "smoothie": "*",
+    "socket.io-client": "~0.9.16",
+    "angular": "*",
+    "bootstrap": "*",
+    "processing": "*",
+    "jquery": "*",
+    "angular-bootstrap-switch": "*"
+  }
+}

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <link rel="stylesheet" type="text/css" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <link href="/bower_components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet">
+<script src="/bower_components/processing/processing.js"></script>
+<script src="/bower_components/smoothie/smoothie.js"></script>
+
+</head>
+<body ng-app="MyApp" ng-controller="nodeSerial">
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <form class="navbar-form navbar-left">
+         <div class="input-group">
+           <select ng-click="serialRefresh()" ng-model="selectedPort" class="form-control">
+            <option ng-repeat="a in ports">{{a}}</option>
+          </select>
+          <span class="input-group-btn" ng-switch on="connected">
+          <button ng-switch-when="false" ng-click="connectSerial()"class="btn btn-default form-control">Connect Serial</button>
+          <button ng-switch-when="true" ng-click="disconnectSerial()"class="btn btn-default active form-control">Disconnect Serial</button>
+          </span>
+        </div>
+      </form>
+    </li>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-header">
+    <h1>quadcopter</h1>
+  </div>
+  <div class="row">
+  <div class="col-md-4">
+  <div class="col-md-12">
+      <button  class="btn btn-primary control-group" ng-click="storeData()">Store Data</button>
+  </div>
+  <div class="col-md-12">
+  </div>
+  <div class="col-md-12">
+  <h2>Controlling: {{DOF}}</h2> <br>
+  <h2>hoek 1 is: {{hoek1}}</h2> <br>
+  <h2>hoek 2 is: {{hoek2}}</h2>
+  </div>
+  </div>
+  <div class="col-md-5">
+    <canvas class="center-block" id="myChart" width="400" height="100"></canvas>
+  </div>
+</div>
+</div>
+
+<script src="/bower_components/socket.io-client/dist/socket.io.min.js"></script>
+<script src="/bower_components/angular/angular.js"></script>
+<script src="/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/bower_components/bootstrap-switch/dist/js/bootstrap-switch.js"></script>
+<script type="application/javascript" src="script.js"></script>
+<script>
+// enable switches
+  // $("[name='EMGon']").bootstrapSwitch();
+  // $("[name='potOn']").bootstrapSwitch();
+  // $("[name='direction']").bootstrapSwitch();
+  // $("[name='angle']").bootstrapSwitch();
+</script>
+<script>
+  function changeAngles(id, theta1, theta2) {
+    var pjs = Processing.getInstanceById(id);
+    pjs.setAngles(theta1, theta2);
+  }
+</script>
+</body>
+</html>
