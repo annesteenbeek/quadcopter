@@ -1,4 +1,6 @@
 var app = angular.module('MyApp', []);
+google.load('visualization', '1.0', {'packages':['corechart']});
+dataTables = {};
 
 
 app.factory('socket', function ($rootScope) {
@@ -26,17 +28,6 @@ app.factory('socket', function ($rootScope) {
 });
 
 var serialPortList = [];
-var smoothie = new SmoothieChart({millisPerPixel:43,
-  grid:{fillStyle:'#f3f3f3'},
-  labels:{fillStyle:'#000000'},
-  timestampFormatter:SmoothieChart.timeFormatter,
-  maxValue:180,
-  minValue:-180});
-smoothie.streamTo(document.getElementById("myChart"));
-var line1 = new TimeSeries
-smoothie.addTimeSeries(line1, {lineWidth:2,strokeStyle:'#0021ef'});
-var line2 = new TimeSeries   
-smoothie.addTimeSeries(line2, {lineWidth:2,strokeStyle:'#FF0000'});
 
 app.controller('nodeSerial', function($scope, socket){
   $scope.connected = false;
@@ -63,18 +54,39 @@ app.controller('nodeSerial', function($scope, socket){
 
 // ------------ Inputs ----------------
 
-  socket.on("aRoll", function (input){
-    console.log("aRoll: " +input);
-    $scope.aRoll = input;
-    line1.append(new Date().getTime(), input);
-  })
+var chart = new google.visualization.LineChart(document.getElementById('myChart'));
+// var timeFormat = new google.visualization.DateFormat({formatType: 'msSS'});
+  var options = {
+    hAxis: {
+      title: 'Time'
+      // format: "S";
+    },
+    vAxis: {
+      title: 'Popularity'
+    }
+  };
 
-  socket.on("aPitch", function (input){
-    console.log("aPitch: " +input);
-    $scope.aPitch = input;
-    line2.append(new Date().getTime(), input);
-  })
+  socket.on("serialData", function (input){
+    console.log(input[0] +": " +input[1]);
+    if(input[0]=="aRoll"){
+      // timeStamp =new Date().getTime();
 
+      if(!dataTables[input[0]]){ // if new key value, creat new data table
+        dataTables[input[0]] = new google.visualization.DataTable();
+        dataTables[input[0]].addColumn('string', "timestamp");
+        dataTables[input[0]].addColumn('number', input[0]);
+        dataTables[input[0]].addRow([String(new Date('m:s:SS').getTime()), parseFloat(input[1])]);
+      }else{
+        dataTables[input[0]].addRow([String(new Date('m:s:SS').getTime()), parseFloat(input[1])]);
+        chart.draw(dataTables["aRoll"], options);
+      };
+      console.log(dataTables);
+    }
+
+  });
+
+
+//-------------- Plotting --------------
 
 // ------------ Serial port setup ------
   $scope.serialRefresh = function(){

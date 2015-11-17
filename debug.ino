@@ -10,8 +10,8 @@ void debugProcess(){
 	Serial.print("my "); Serial.print(my); Serial.print("\t");
 	Serial.print("mz "); Serial.print(mz); Serial.print("\n");
 
-	Serial.print("RCroll:"); Serial.print(RCroll); Serial.print("\t");
-	Serial.print("RCpitch:"); Serial.print(RCpitch); Serial.print("\t");
-	Serial.print("RCyaw:"); Serial.print(RCyaw); Serial.print("\t");
-	Serial.print("RCthrottle:"); Serial.print(RCthrottle); Serial.print("\n");
+	// Serial.print("RCroll "); Serial.print(RCroll); Serial.print("\t");
+	// Serial.print("RCpitch "); Serial.print(RCpitch); Serial.print("\t");
+	// Serial.print("RCyaw "); Serial.print(RCyaw); Serial.print("\t");
+	// Serial.print("RCthrottle "); Serial.print(RCthrottle); Serial.print("\n");
 }

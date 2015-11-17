@@ -75,13 +75,13 @@ io.sockets.on('connection', function (socket) {
 // --------- functions ---------------
 
 function parseSerial(socket, data){
-	console.log(data);
+	// console.log(data);
 	data = data.split("\t"); // split data in array by tabs
 	data.forEach(function(dataset){
 		dataset = dataset.split(" "); // split subset by spaces
 		var key = dataset.shift();
 		dataset.forEach(function(elementValue){
-			socket.emit(key, elementValue); // emit every key and their values
+			socket.emit("serialData", [key, elementValue]); // emit every key and their values
 			if (!storeData[key]){
 				storeData[key] = [parseFloat(elementValue)];
 			}else{
@@ -99,7 +99,7 @@ function getSerialPorts(callback){
 	    portNames.push(port.comName);
 	  });
 	    if (portNames.length > 0) {
-	    	console.log(portNames);
+	    	// console.log(portNames);
 	    	callback(portNames);
 	    }else{
 	    	console.log("No serialports available.");

@@ -10,7 +10,7 @@ double aRoll, aPitch;
 double dGx, dGy, dGz;
 double gRoll, gPitch, gYaw;
 
-unsigned long timer;
+double timer;
 
 //------Motor Config --------
 
