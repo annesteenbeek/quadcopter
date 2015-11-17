@@ -1,7 +1,5 @@
 var app = angular.module('MyApp', []);
-// ----------- Downlaod CSV ------------
 // --------------- socketio in angularjs ----------
-
 app.factory('socket', function ($rootScope) {
   var socket = io.connect();
   return {
@@ -28,10 +26,14 @@ app.factory('socket', function ($rootScope) {
 
 var serialPortList = [];
 
+// ------------ AngularJS -------------------
 app.controller('nodeSerial', function($scope, socket){
   $scope.dataTables = {};
   $scope.connected = false;
   $scope.ports = ["..."];
+  $scope.keys = [];
+  $scope.smoothieObj = {};
+  $scope.smoothieLines = {};
 
   socket.on('serialPorts', function (input){
     console.log(input);
@@ -53,13 +55,38 @@ app.controller('nodeSerial', function($scope, socket){
   });
 
 // ------------ Inputs ----------------
-
   socket.on("serialData", function (input){
-    console.log(input[0] +": " +input[1]);
-      if(!$scope.dataTables[input[0]]){ // if new key value, creat new data table
-        $scope.dataTables[input[0]] = [input[1]];
+    var key = input[0];
+    var data = input[1];
+    // console.log(key +": " +input[1]);
+      if(!$scope.dataTables[key]){ // if new key value, creat new data table
+        $scope.dataTables[key] = [input[1]];
+        $scope.keys.push(key);
+        // create new smoothie chart and store in object by key
+        $scope.smoothieObj[key] = new SmoothieChart({millisPerPixel:43,
+          grid:{fillStyle:'#f3f3f3'},
+          labels:{fillStyle:'#000000'},
+          timestampFormatter:SmoothieChart.timeFormatter
+        });
+        // create html object canvas
+        chartList = document.getElementById('chartList');
+        // var canvas = ['<canvas id="'+ key +'" width="400" height="100"></canvas>'];
+        var canvas = document.createElement("canvas");
+        canvas.id=key;
+        canvas.width=400;
+        canvas.height=100;
+        chartList.appendChild(canvas);
+        // connect smoothie object to html canvas
+        $scope.smoothieObj[key].streamTo(document.getElementById(key));
+        // create new timeseries for key value
+        $scope.smoothieLines[key] = new TimeSeries;
+        // add line to smoothie object
+        $scope.smoothieObj[key].addTimeSeries($scope.smoothieLines[key], 
+          {lineWidth:2,strokeStyle:'#0021ef'});
       }else{
-        $scope.dataTables[input[0]].push(input[1]);
+        $scope.dataTables[key].push(data);
+        // append new data to smoothie line
+        $scope.smoothieLines[key].append(new Date().getTime(), data);
       };
   });
 
@@ -68,7 +95,7 @@ $scope.getCSV = function (name){
   var csvContent = "data:text/csv;charset=utf-8,";
   data = [$scope.dataTables[name]];
        data.forEach(function(infoArray, index){ 
-          dataString = infoArray.join(","); 
+          dataString = infoArray.join("\n"); 
           csvContent += index < infoArray.length ? dataString+ "\n" : dataString;  
         });
        console.log(dataString);
