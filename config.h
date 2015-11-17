@@ -1,6 +1,16 @@
 // ----- Debug settings ------
 #define DEBUG
 
+// ----- Sensors --------
+int16_t ax, ay, az;
+int16_t gx, gy, gz;
+int16_t mx, my, mz;
+
+double aRoll, aPitch;
+double dGx, dGy, dGz;
+double gRoll, gPitch, gYaw;
+
+unsigned long timer;
 
 //------Motor Config --------
 
@@ -9,25 +19,10 @@
 #define BR 3 // Back Right Motor
 #define BL 9 // Back Left Motor
 
-int16_t ax, ay, az;
-int16_t gx, gy, gz;
-int16_t mx, my, mz;
-
-double rollAcc, pitchAcc;
-double gyroXrate, gyroYrate, gyroZrate;
-double rollGyro, pitchGyro, yawGyro;
-double Kalroll, Kalpitch, Kalyaw;
-double Startroll, Startpitch;
-
-uint32_t timer, timer1;
-double todeg = 180/3.14159;
-double torad = 3.14159/180;
-int error = 0; // Store errors.
-double heading;
+double toDeg = 180/3.14159;
+double toRad = 3.14159/180;
 
 int RCroll, RCpitch, RCyaw, RCthrottle;
-int PIDroll, PIDpitch, PIDyaw;
-
 int chan1, chan2, chan3, chan4;
 
 #define NUM_RC_CHANNELS 4

@@ -1,18 +1,17 @@
 void debugProcess(){
-	Serial.print("ax:"); Serial.println(ax); 
-	Serial.print("ay:"); Serial.println(ay); 
-	Serial.print("az:"); Serial.println(az);
+	Serial.print("aRoll "); Serial.print(aRoll); Serial.print("\t");
+	Serial.print("aPitch "); Serial.print(aPitch); Serial.print("\n");
 
-	Serial.print("gx:"); Serial.println(gx); 
-	Serial.print("gy:"); Serial.println(gy); 
-	Serial.print("gz:"); Serial.println(gz);
+	Serial.print("gRoll "); Serial.print(gRoll); Serial.print("\t");
+	Serial.print("gPitch "); Serial.print(gPitch); Serial.print("\t");
+	Serial.print("gYaw "); Serial.print(gYaw); Serial.print("\n");
 
-	Serial.print("mx:"); Serial.println(mx); 
-	Serial.print("my:"); Serial.println(my); 
-	Serial.print("mz:"); Serial.println(mz);
+	Serial.print("mx "); Serial.print(mx); Serial.print("\t");
+	Serial.print("my "); Serial.print(my); Serial.print("\t");
+	Serial.print("mz "); Serial.print(mz); Serial.print("\n");
 
-	Serial.print("RCroll:"); Serial.print(RCroll);
-	Serial.print("RCpitch:"); Serial.print(RCpitch);
-	Serial.print("RCyaw:"); Serial.print(RCyaw);
-	Serial.print("RCthrottle:"); Serial.println(RCthrottle);
+	Serial.print("RCroll:"); Serial.print(RCroll); Serial.print("\t");
+	Serial.print("RCpitch:"); Serial.print(RCpitch); Serial.print("\t");
+	Serial.print("RCyaw:"); Serial.print(RCyaw); Serial.print("\t");
+	Serial.print("RCthrottle:"); Serial.print(RCthrottle); Serial.print("\n");
 }
