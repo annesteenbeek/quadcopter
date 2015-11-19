@@ -3,23 +3,27 @@
 #include "Wire.h"
 #include "HMC5883L.h" // Source: https://github.com/jrowberg/i2cdevlib
 #include "PinChangeInt.h"
-// #include "RCLib.h"  // Source: https://github.com/jantje/libraries/tree/master/RCLib
+#include "Kalman.h"
 #include "config.h"
+#include "RCLib.h"  // Source: https://github.com/jantje/libraries/tree/master/RCLib
+#include "PID.h"
 
 MPU6050 mpu;    // define mpu
 HMC5883L mag; // define compass
 
-void setup() {
-  #ifdef DEBUG  
-  Serial.begin(9600);
-  while(!Serial);
-  #endif
-  Wire.begin();
-  mpu.initialize();
-  mag.initialize();
+Kalman kalmanRoll;
+Kalman kalmanPitch;
 
-  timer = micros();
-  // initSensors();
+// create PID filter isntances
+PID rollPID(roll, rollPWM, RCroll, KpRoll, KiRoll, KdRoll);
+PID pitchPID(pitch, pitchPWM, RCpitch, KpPitch, KiPitch, KdPitch);
+PID yawPID(yaw, yawPWM, RCyaw, KpYaw, KiYaw, KdYaw);
+
+void setup() {
+  Serial.begin(9600);
+
+  initSensors();
+  SetRCInterrupts(); // init RC
 
   // radio pins
   pinMode(ch1, INPUT);
@@ -38,12 +42,17 @@ void setup() {
 
 void loop() {
   readSensors();
+  filterSensors();
 
-  // readRadio();
+  readRadio();
 
-  #ifdef DEBUG
-    debugProcess();
-  #endif
+  rollPID.compute();
+  pitchPID.compute();
+  yawPID.compute();
+
+  writeMotors();
+
+  debugProcess();
 
 } 
 

@@ -1,19 +1,17 @@
-// ----- Debug settings ------
-#define DEBUG
-
-// ----- Sensors --------
+//----- Sensors --------
 int16_t ax, ay, az;
 int16_t gx, gy, gz;
 int16_t mx, my, mz;
 
 double aRoll, aPitch;
-double dGx, dGy, dGz;
+double dGRoll, dGPitch, dGYaw;
 double gRoll, gPitch, gYaw;
+double roll, pitch;
 
-double timer;
+double prevTimeG;
+double prevTimeK;
 
 //------Motor Config --------
-
 #define FL 10 // Front Left Motor
 #define FR 11 // Front Right Motor
 #define BR 3 // Back Right Motor
@@ -22,6 +20,8 @@ double timer;
 double toDeg = 180/3.14159;
 double toRad = 3.14159/180;
 
+
+//------- Remote control setup ------
 int RCroll, RCpitch, RCyaw, RCthrottle;
 int chan1, chan2, chan3, chan4;
 
@@ -44,16 +44,18 @@ uint16_t RC_Channel_Value[NUM_RC_CHANNELS];
 #define ch3max 1868
 #define ch4max 1932
 
-#define Kp_roll 0.1
-#define Ki_roll 0.1
-#define Kd_roll 0.1
 
-#define Kp_pitch 0.1
-#define Ki_pitch 0.1
-#define Kd_pitch 0.1
+//------- PID values ------
+double KpRoll = 1;
+double KiRoll = 0;
+double KdRoll = 0;
 
-#define Kp_yaw 0
-#define Ki_yaw 0
-#define Kd_yaw 0
+double KpPitch = 1;
+double KiPitch = 0;
+double KdPitch = 0;
+
+double KpYaw = 1;
+double KiYaw = 0;
+double KdYaw = 0;
 
 int input = 0;
