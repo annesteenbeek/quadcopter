@@ -7,6 +7,13 @@
   <title></title>
   <link rel="stylesheet" type="text/css" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
   <link href="/bower_components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet">
+  <style> 
+    .row{
+      margin-top: 15px;
+      margin-bottom: 15px;
+    }
+  </style>
+
 <script src="/bower_components/processing/processing.js"></script>
 <script src="/bower_components/smoothie/smoothie.js"></script>
 
@@ -30,24 +37,20 @@
   </div>
 </nav>
 
-<div class="container-fluid">
+<div class="container">
   <div class="page-header">
     <h1>quadcopter</h1>
   </div>
-  <div class="row">
-  <div class="col-md-4">
-  <div class="col-md-12">
-      <a  ng-repeat="key in keys" class="btn btn-primary control-group" ng-click="getCSV(key)">Store {{key}}</a>
+  <div class="row" ng-repeat="key in keys">
+    <div class="col-md-8">
+      <h3>{{key}}</h3>
+      <canvas class="pull-right" id="{{key}}" width="400" height="150"></canvas>
+    </div>
+    <div>
+      <a class="btn btn-primary" ng-click="getCSV(key)">Download {{key}}</a>
+    </div>
   </div>
-  </div>
-  <div class="col-md-12" id="chartList">
-  </div>
-  <div class="col-md-12">
-
-  </div>
-  <div class="col-md-5">
-    <div class="center-block" id="myChart" width="400" height="100"></div>
-  </div>
+</div>
 </div>
 </div>
 
@@ -57,13 +60,6 @@
 <script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 <script src="/bower_components/bootstrap-switch/dist/js/bootstrap-switch.js"></script>
 <script type="application/javascript" src="script.js"></script>
-<script>
-// enable switches
-  // $("[name='EMGon']").bootstrapSwitch();
-  // $("[name='potOn']").bootstrapSwitch();
-  // $("[name='direction']").bootstrapSwitch();
-  // $("[name='angle']").bootstrapSwitch();
-</script>
 <script>
   function changeAngles(id, theta1, theta2) {
     var pjs = Processing.getInstanceById(id);

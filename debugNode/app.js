@@ -11,7 +11,7 @@ var i = 0;
 var portNames ={};
 app.use(express.static(__dirname + '/public'));
 console.log("Created server on port: " + server.address().port)
-
+var skipLines = 0;
 // ------- Setup CSV ---------
 var storeData = {};
 
@@ -38,7 +38,13 @@ io.sockets.on('connection', function (socket) {
 	});
 
 	serial.on('data', function(data){
-		parseSerial(socket, data);
+		console.log(data);
+		if (skipLines==10){ // lines to skip to prevent broken lines at startup
+			parseSerial(socket, data);
+		}else{
+			console.log("skipped: " + data);
+			skipLines = skipLines +1;
+		};
 	});
 
 	socket.on('serialRefresh', function(){
@@ -58,37 +64,16 @@ io.sockets.on('connection', function (socket) {
 		});
 	});
 
-	socket.on('storeData', function(){
-		keys = [];
-		for(var k in storeData) keys.push(k);
-		json2csv({data: storeData, fields: keys}, function (err, csv) {
-			if (err) console.log(err);
-			fs.writeFile("storeOutput.csv", csv, function(err){
-				if(err) throw err;
-				console.log("file saved")
-			})
-		});
-
-	})
 });
 
 // --------- functions ---------------
 
 function parseSerial(socket, data){
-	// console.log(data);
-	data = data.split("\t"); // split data in array by tabs
-	data.forEach(function(dataset){
-		dataset = dataset.split(" "); // split subset by spaces
-		var key = dataset.shift();
-		dataset.forEach(function(elementValue){
-			socket.emit("serialData", [key, elementValue]); // emit every key and their values
-			if (!storeData[key]){
-				storeData[key] = [parseFloat(elementValue)];
-			}else{
-				storeData[key].push(parseFloat(elementValue));
-			}
-		})
-	});
+		data = data.split("\t"); // split data in array by tabs
+		data.forEach(function(dataset){
+			dataset = dataset.split(" "); // split subset by spaces
+			socket.emit("serialData", dataset); // emit every key and their values
+		});
 };
 
 function getSerialPorts(callback){
@@ -125,6 +110,7 @@ function connectSerial(portName, callback){
 };
 
 function disconnectSerial(callback){
+	skipLines = 0; // serial needs to buffer again at startup
 	if(serial.isOpen()){
 		serial.close();
 		console.log("Disconnected from: "+serial.path);
