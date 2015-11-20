@@ -15,12 +15,10 @@ PID::PID(double* Input, double* Output, double* Setpoint, double Kp, double Ki, 
 	PID::setTunings(Kp, Ki, Kd);
 }
 
-bool PID::compute(double dt){
-	if(!inAuto) return false;
-
+void PID::compute(double dt){
 	// calculate using sample time frequency (regular intervals)
 	// no more need to modify derivative/int sicne sample time is constant
-	if(dt <=SampleTime){ 
+	if(dt <= SampleTime){ 
 		double input = *myInput;
 		error = *mySetpoint - input;  // get error for proportional
 		ITerm += (ki*error);  // Error for integral (with ki included)
@@ -37,9 +35,7 @@ bool PID::compute(double dt){
 		else if(output<outMin) output=outMin;
 		*myOutput = output;
 		lastErr = error;
-		return true;
 	}
-	else return false;
 }
 
 void PID::setTunings(double Kp, double Ki, double Kd)

@@ -3,20 +3,15 @@
 
 class PID{
 	public:
-	#define MANUAL 0
-	#define AUTOMATIC 1
-
 	PID(double*, double*, double*, double, double, double);
 
-	void SetMode(int Mode);
+	void compute(double);
 
-	bool Compute();  // returns false when in Manual mode
+	void setOutputLimits(double, double);
 
-	void SetOutputLimits(double, double);
+	void setSampleTime(double);
 
-	void SetSampleTime(double);
-
-	void SetTunings(double, double, double);
+	void setTunings(double, double, double);
 	
 	double getKp();
 	double getKi();
@@ -24,7 +19,6 @@ class PID{
 
 	private:
 	void Initialize();
-	int controllerDirection;
 	double SampleTime;
 	double *myInput;              // * Pointers to the Input, Output, and Setpoint variables
     double *myOutput;             //   This creates a hard link between the variables and the 

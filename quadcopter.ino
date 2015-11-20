@@ -5,8 +5,8 @@
 #include "PinChangeInt.h"
 #include "Kalman.h"
 #include "config.h"
+#include "PID/PID.h"
 #include "RCLib.h"  // Source: https://github.com/jantje/libraries/tree/master/RCLib
-#include "PID.h"
 
 MPU6050 mpu;    // define mpu
 HMC5883L mag; // define compass
@@ -15,9 +15,9 @@ Kalman kalmanRoll;
 Kalman kalmanPitch;
 
 // create PID filter isntances
-PID rollPID(roll, rollPWM, RCroll, KpRoll, KiRoll, KdRoll);
-PID pitchPID(pitch, pitchPWM, RCpitch, KpPitch, KiPitch, KdPitch);
-PID yawPID(yaw, yawPWM, RCyaw, KpYaw, KiYaw, KdYaw);
+PID rollPID(&roll, &rollPWM, &RCroll, KpRoll, KiRoll, KdRoll);
+PID pitchPID(&pitch, &pitchPWM, &RCpitch, KpPitch, KiPitch, KdPitch);
+PID yawPID(&yaw, &yawPWM, &RCyaw, KpYaw, KiYaw, KdYaw);
 
 void setup() {
   Serial.begin(9600);
@@ -37,7 +37,7 @@ void setup() {
   pinMode(BL, OUTPUT);  // Back Left Motor
   pinMode(BR, OUTPUT);  // Back Right Motor
 
-  // SetRCInterrupts(); //This method will do all the config for you.
+  prevTimeP = micros();
 }
 
 void loop() {
@@ -46,11 +46,15 @@ void loop() {
 
   readRadio();
 
-  rollPID.compute();
-  pitchPID.compute();
-  yawPID.compute();
+  double dT = (prevTimeP - micros())/1000000;
+  rollPID.compute(dT);
+  pitchPID.compute(dT);
+  yawPID.compute(dT);
+  prevTimeP = micros();
 
-  writeMotors();
+  if(motorsEnable){
+    // writeMotors();
+  }
 
   debugProcess();
 

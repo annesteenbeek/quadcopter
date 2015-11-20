@@ -6,10 +6,11 @@ int16_t mx, my, mz;
 double aRoll, aPitch;
 double dGRoll, dGPitch, dGYaw;
 double gRoll, gPitch, gYaw;
-double roll, pitch;
+double roll, pitch, yaw;
 
 double prevTimeG;
 double prevTimeK;
+double prevTimeP;
 
 //------Motor Config --------
 #define FL 10 // Front Left Motor
@@ -17,12 +18,18 @@ double prevTimeK;
 #define BR 3 // Back Right Motor
 #define BL 9 // Back Left Motor
 
+bool motorsEnable = false;
+
 double toDeg = 180/3.14159;
 double toRad = 3.14159/180;
 
+double rollPWM;
+double pitchPWM;
+double yawPWM;
+
 
 //------- Remote control setup ------
-int RCroll, RCpitch, RCyaw, RCthrottle;
+double RCroll, RCpitch, RCyaw, RCthrottle;
 int chan1, chan2, chan3, chan4;
 
 #define NUM_RC_CHANNELS 4
@@ -43,6 +50,11 @@ uint16_t RC_Channel_Value[NUM_RC_CHANNELS];
 #define ch2max 1880
 #define ch3max 1868
 #define ch4max 1932
+//-------- arming -------
+bool lowDone = false;
+bool highDone = false;
+bool startCount = false;
+double startTime = 0;
 
 
 //------- PID values ------
