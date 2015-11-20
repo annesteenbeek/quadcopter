@@ -23,8 +23,6 @@ PID yawPID(&yaw, &yawPWM, &RCyaw, KpYaw, KiYaw, KdYaw, DIRECT);
 void setup() {
   Serial.begin(9600);
 
-  initSensors();
-  SetRCInterrupts(); // init RC
 
   // radio pins
   pinMode(ch1, INPUT);
@@ -38,7 +36,8 @@ void setup() {
   pinMode(BL, OUTPUT);  // Back Left Motor
   pinMode(BR, OUTPUT);  // Back Right Motor
 
-  prevTimeP = micros();
+  initSensors();
+  SetRCInterrupts(); // init RC
 }
 
 void loop() {
