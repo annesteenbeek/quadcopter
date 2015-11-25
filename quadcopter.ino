@@ -7,7 +7,8 @@
 #include "config.h"
 #include "RCLib.h" // Source: https://github.com/jantje/libraries/tree/master/RCLib
 #include "PID_v1.h"
-  
+#include <EEPROM.h>
+
 
 MPU6050 mpu;    // define mpu
 HMC5883L mag; // define compass
@@ -20,24 +21,23 @@ PID rollPID(&roll, &rollPWM, &RCroll, KpRoll, KiRoll, KdRoll, DIRECT);
 PID pitchPID(&pitch, &pitchPWM, &RCpitch, KpPitch, KiPitch, KdPitch, DIRECT);
 PID yawPID(&yaw, &yawPWM, &RCyaw, KpYaw, KiYaw, KdYaw, DIRECT);
 
+
 void setup() {
   Serial.begin(9600);
 
+  initSensors();
+  SetRCInterrupts(); // init RC
+  motorInit();
+  getPIDValues();
+  PIDinit();
 
   // radio pins
   pinMode(ch1, INPUT);
   pinMode(ch2, INPUT);
   pinMode(ch3, INPUT);
   pinMode(ch4, INPUT);
-
-  // motor pins
-  pinMode(FL, OUTPUT);  // Front Left Motor
-  pinMode(FR, OUTPUT);  // Front Right Motor
-  pinMode(BL, OUTPUT);  // Back Left Motor
-  pinMode(BR, OUTPUT);  // Back Right Motor
-
-  initSensors();
-  SetRCInterrupts(); // init RC
+  pinMode(LEDPIN, OUTPUT);
+  digitalWrite(LEDPIN,LOW);
 }
 
 void loop() {
@@ -50,11 +50,13 @@ void loop() {
   pitchPID.Compute();
   yawPID.Compute();
 
-  if(motorsEnable){
-    // writeMotors();
-  }
+  // if(motorsEnable){
+    writeMotors();
+  // }
 
   debugProcess();
+  tunePIDSerial();
+
 
 } 
 

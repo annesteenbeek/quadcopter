@@ -44,7 +44,9 @@ void filterSensors(){
 }
 
 double tiltCompensateYaw(double mx, double my, double mz, double roll, double pitch){
+  roll = roll*toRad;
+  pitch = pitch*toRad;
   double Xh = mx * cos(pitch) + my * sin(roll) * sin(pitch) + mz * cos(roll) * sin(pitch);
   double Yh = my * cos(roll) - mz * sin(roll);
-  return atan2(-Yh, Xh);
+  return atan2(-Yh, Xh)*toDeg;
 }

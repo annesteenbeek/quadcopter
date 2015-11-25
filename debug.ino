@@ -13,11 +13,11 @@ void debugProcess(){
 	// Serial.print("dGRoll "); Serial.print(dGRoll); Serial.print("\t");
 	// Serial.print("dGPitch "); Serial.print(dGPitch); Serial.print("\n");
 
-	// Serial.print("combinedRoll "); Serial.print(aRoll); Serial.print(" ");
-	// Serial.print(gRoll); Serial.print(" "); Serial.print(roll); Serial.print("\t");
+	Serial.print("combinedRoll "); Serial.print(aRoll); Serial.print(" ");
+	Serial.print(gRoll); Serial.print(" "); Serial.print(roll); Serial.print("\t");
 
-	// Serial.print("combinedpitch "); Serial.print(aPitch); Serial.print(" ");
-	// Serial.print(gPitch); Serial.print(" "); Serial.print(pitch); Serial.print("\t");
+	Serial.print("combinedpitch "); Serial.print(aPitch); Serial.print(" ");
+	Serial.print(gPitch); Serial.print(" "); Serial.print(pitch); Serial.print("\t");
 
 	// Serial.print("mx "); Serial.print(mx); Serial.print("\t");
 	// Serial.print("my "); Serial.print(my); Serial.print("\t");
@@ -28,13 +28,13 @@ void debugProcess(){
 	// Serial.print("RCyaw "); Serial.print(RCyaw); Serial.print("\t");
 	// Serial.print("RCthrottle "); Serial.print(RCthrottle); Serial.print("\n");
 
-	Serial.print("roll"); Serial.print(roll); Serial.print(" ");
+	Serial.print("RPY "); Serial.print(roll); Serial.print(" ");
 	Serial.print(pitch); Serial.print(" ");
 	Serial.print(yaw); Serial.print("\t");
 
-	Serial.print("roll"); Serial.print(roll); Serial.print("\t");
-	Serial.print("pitch"); Serial.print(pitch); Serial.print("\t");
-	Serial.print("yaw"); Serial.print(yaw); Serial.print("\n");
+	// Serial.print("roll "); Serial.print(roll); Serial.print("\t");
+	// Serial.print("pitch "); Serial.print(pitch); Serial.print("\t");
+	// Serial.print("yaw "); Serial.print(yaw); Serial.print("\n");
 
 
 	// Serial.print("chan1 "); Serial.print(chan1); Serial.print("\t");

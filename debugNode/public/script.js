@@ -1,3 +1,5 @@
+'use strict';
+
 var app = angular.module('MyApp', []);
 // --------------- socketio in angularjs ----------
 app.factory('socket', function ($rootScope) {
@@ -59,6 +61,10 @@ app.controller('nodeSerial', function($scope, socket){
   socket.on("serialData", function (input){
     var key = input.shift();
     var data = input;
+    if(key=="PIDvalues"){
+      console.log(data);
+      break;
+    }
     // console.log();
       if(!($scope.keys.indexOf(key)>-1)){ // if new key value, creat new data table
         $scope.keys.push(key);
@@ -68,6 +74,8 @@ app.controller('nodeSerial', function($scope, socket){
         $scope.smoothieObj[key] = new SmoothieChart({millisPerPixel:43,
           grid:{fillStyle:'#f3f3f3'},
           labels:{fillStyle:'#000000'},
+          maxValue:180,
+          minValue:-180,
           timestampFormatter:SmoothieChart.timeFormatter
         });
         // create html object canvas
@@ -80,7 +88,7 @@ app.controller('nodeSerial', function($scope, socket){
           $scope.smoothieObj[key].addTimeSeries($scope.smoothieLines[key+String(i)], 
             {lineWidth:2,strokeStyle:$scope.colors[i]});
         })
-      }, 10);
+      }, 100);
       }else{
         data.forEach(function (value, i){
           $scope.dataTables[key + String(i)].push(value);
@@ -131,3 +139,12 @@ $scope.getCSV = function (name){
 })
 
 
+// creat dyanimc functions:
+
+// var func = {};
+// var name = "foo";
+//  func.one = new Function(
+//      "return function " + name + "(word){ alert(word)}"
+// )();
+
+// func.one("hello");

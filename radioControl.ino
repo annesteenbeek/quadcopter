@@ -1,17 +1,18 @@
+
 void readRadio(){
+    int flag;
   // get the Radio data
-  int flag;
   if(flag=getChannelsReceiveInfo()){
-    chan1 = constrain(RC_Channel_Value[0],ch1min, ch1max);
-    chan2 = constrain(RC_Channel_Value[1],ch2min, ch2max);
-    chan3 = constrain(RC_Channel_Value[2],ch3min, ch3max);
-    chan4 = constrain(RC_Channel_Value[3],ch4min, ch4max);
+    int chan1 = constrain(RC_Channel_Value[0],ch1min, ch1max);
+    int chan2 = constrain(RC_Channel_Value[1],ch2min, ch2max);
+    int chan3 = constrain(RC_Channel_Value[2],ch3min, ch3max);
+    int chan4 = constrain(RC_Channel_Value[3],ch4min, ch4max);
   }
 
-  RCroll=constrain(map(chan4,ch4min,ch4max,-45,45), -45, 45);
-  RCpitch=constrain(map(chan2,ch2min,ch2max, -45, 45), -45, 45);
-  RCyaw=constrain(map(chan1,ch1min,ch1max, -100, 100), -100, 100);
-  RCthrottle=constrain(map(chan3,ch3min,ch3max, 0, 100), 0, 100);
+  double RCroll=constrain(map(chan1,ch1min,ch1max,-45,45), -45, 45);
+  double RCpitch=constrain(map(chan3,ch3min,ch3max, -45, 45), -45, 45);
+  double RCyaw=constrain(map(chan2,ch2min,ch2max, -100, 100), -100, 100);
+  double RCthrottle=constrain(map(chan4,ch4min,ch4max, MOTOR_ARM_START, MOTOR_MAX_LEVEL), MOTOR_ARM_START, MOTOR_MAX_LEVEL);
 
   if (!motorsEnable){
     checkArmingProcedure();
@@ -62,6 +63,7 @@ void checkArmingProcedure(){
         }
         if(startTime-micros()>2000000){
             motorsEnable=true;
+            digitalWrite(LEDPIN, HIGH);
         }
     }else{
         if(lowDone && highDone && startCount){ // if sequence is broken, restart

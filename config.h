@@ -19,6 +19,7 @@ double prevTimeP;
 #define BL 9 // Back Left Motor
 
 bool motorsEnable = false;
+#define LEDPIN 13
 
 double toDeg = 180/3.14159;
 double toRad = 3.14159/180;
@@ -26,6 +27,7 @@ double toRad = 3.14159/180;
 double rollPWM;
 double pitchPWM;
 double yawPWM;
+
 
 
 //------- Remote control setup ------
@@ -50,6 +52,13 @@ uint16_t RC_Channel_Value[NUM_RC_CHANNELS];
 #define ch2max 1880
 #define ch3max 1868
 #define ch4max 1932
+
+#define MOTOR_ZERO_LEVEL 100
+#define MOTOR_ARM_START 100
+#define MOTOR_MAX_LEVEL 254
+
+int FLinput, FRinput, BLinput, BRinput;
+
 //-------- arming -------
 bool lowDone = false;
 bool highDone = false;
@@ -70,4 +79,6 @@ double KpYaw = 1;
 double KiYaw = 0;
 double KdYaw = 0;
 
-int input = 0;
+double PIDSampleTime = 0.01;
+
+String inData;
