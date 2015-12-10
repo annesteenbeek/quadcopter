@@ -58,11 +58,21 @@ io.sockets.on('connection', function (socket) {
 			socket.emit(result[0], result[1]); // emit failed or connected
 		});
 	});
+
 	socket.on('disconnectSerial', function(){
 		disconnectSerial(function(result){
 			socket.emit(result[0], result[1]); // emit conformation of disconnect
 		});
 	});
+
+	socket.on('getPIDValues', function(){
+		console.log("getting PID VALUES!!!!!!!!!!!!!")
+		serial.write('getPIDValues\n');
+	});
+
+	socket.on('setParameter', function(data){
+		serial.write(data[0] + " " + data[1] + "\n");
+	})
 
 });
 

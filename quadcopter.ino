@@ -30,6 +30,7 @@ void setup() {
   motorInit();
   getPIDValues();
   PIDinit();
+  getMeanYaw(); // get stable yaw value at start
 
   // radio pins
   pinMode(ch1, INPUT);
@@ -50,9 +51,9 @@ void loop() {
   pitchPID.Compute();
   yawPID.Compute();
 
-  // if(motorsEnable){
+  if(motorsEnable){
     writeMotors();
-  // }
+  }
 
   debugProcess();
   tunePIDSerial();

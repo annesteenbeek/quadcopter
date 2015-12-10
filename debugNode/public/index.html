@@ -41,13 +41,26 @@
   <div class="page-header">
     <h1>quadcopter</h1>
   </div>
-  <div class="row" ng-repeat="key in keys">
-    <div class="col-md-8">
-      <h3>{{key}}</h3>
-      <canvas class="pull-right" id="{{key}}" width="400" height="150"></canvas>
-    </div>
-    <div>
-      <a class="btn btn-primary" ng-click="getCSV(key)">Download {{key}}</a>
+  <div class="col-md-2">
+    <div class="row" ng-repeat="(key, value) in PIDparameters">
+      <h4>{{key}}</h4>
+      <div class="input-group">
+        <span class="input-group-btn">
+        <button class="btn btn-default" type="button" ng-click="sendPID(key)">Send</button>
+        </span>
+        <input type="text" class="form-control" placeholder="value" ng-model="PIDparameters[key]">
+      </div><!-- /input-group -->
+    </div><!-- /row -->
+  </div>
+  <div class="col-md-10">
+    <div class="row" ng-repeat="key in keys">
+      <div class="col-md-8">
+        <h3>{{key}}</h3>
+        <canvas class="pull-right" id="{{key}}" width="400" height="150"></canvas>
+      </div>
+      <div class="col-md-2">
+        <a class="btn btn-primary" ng-click="getCSV(key)">Download {{key}}</a>
+      </div>
     </div>
   </div>
 </div>

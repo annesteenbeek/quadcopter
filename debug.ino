@@ -30,7 +30,7 @@ void debugProcess(){
 
 	Serial.print("RPY "); Serial.print(roll); Serial.print(" ");
 	Serial.print(pitch); Serial.print(" ");
-	Serial.print(yaw); Serial.print("\t");
+	Serial.print(yaw); Serial.println("\t");
 
 	// Serial.print("roll "); Serial.print(roll); Serial.print("\t");
 	// Serial.print("pitch "); Serial.print(pitch); Serial.print("\t");

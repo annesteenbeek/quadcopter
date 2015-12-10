@@ -8,9 +8,11 @@ double dGRoll, dGPitch, dGYaw;
 double gRoll, gPitch, gYaw;
 double roll, pitch, yaw;
 
+double yawAvg;
+
 double prevTimeG;
 double prevTimeK;
-double prevTimeP;
+double prevTimeY = 0; // prev time yawRate was calculated
 
 //------Motor Config --------
 #define FL 10 // Front Left Motor

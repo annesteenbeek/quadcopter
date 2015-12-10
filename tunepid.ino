@@ -5,6 +5,9 @@ void getPIDValues(){ // get old PID values from EEPROM
     for (int i =0; i<9; i++){
         float f = 0.00f; // store float read from EEPROM
         EEPROM.get(i*sizeof(float), f);
+        if(f != f){ // filter out possible NaN values
+            f = 0;
+        }
             switch (i){
                 case 0:
                 KpRoll = (double) f;

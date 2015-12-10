@@ -30,6 +30,9 @@ var serialPortList = [];
 
 // ------------ AngularJS -------------------
 app.controller('nodeSerial', function($scope, socket){
+  $scope.PIDparameters = [];
+  $scope.PIDparameters = {"rkp":0,"rki":0,"rkd":0,"pkp":0,"pki":0,"pkd":0,"ykp":0,"yki":0,"ykd":0};
+
   $scope.dataTables = {};
   $scope.connected = false;
   $scope.ports = ["..."];
@@ -46,6 +49,9 @@ app.controller('nodeSerial', function($scope, socket){
   socket.on("connectedSerial", function (input){
     console.log("connected to port: "+input);
     $scope.connected = true;
+    setInterval(function(){
+      socket.emit('getPIDValues');
+    }, 5000);
   });
 
   socket.on("failed", function (input){
@@ -63,40 +69,59 @@ app.controller('nodeSerial', function($scope, socket){
     var data = input;
     if(key=="PIDvalues"){
       console.log(data);
-      break;
-    }
-    // console.log();
-      if(!($scope.keys.indexOf(key)>-1)){ // if new key value, creat new data table
-        $scope.keys.push(key);
-        // connect smoothie object to html canvas
-        setTimeout(function(){
-        // create new smoothie chart and store in object by key
-        $scope.smoothieObj[key] = new SmoothieChart({millisPerPixel:43,
-          grid:{fillStyle:'#f3f3f3'},
-          labels:{fillStyle:'#000000'},
-          maxValue:180,
-          minValue:-180,
-          timestampFormatter:SmoothieChart.timeFormatter
-        });
-        // create html object canvas
-        $scope.smoothieObj[key].streamTo(document.getElementById(key));
-        data.forEach(function (value, i){ // for each value in array create different line
-          $scope.dataTables[key+String(i)] = [value];
-          // create new timeseries for key value
-          $scope.smoothieLines[key+String(i)] = new TimeSeries;
-          // add line to smoothie object
-          $scope.smoothieObj[key].addTimeSeries($scope.smoothieLines[key+String(i)], 
-            {lineWidth:2,strokeStyle:$scope.colors[i]});
-        })
-      }, 100);
+      $scope.placePIDValues(data);
       }else{
-        data.forEach(function (value, i){
-          $scope.dataTables[key + String(i)].push(value);
-          // append new data to smoothie line
-          $scope.smoothieLines[key + String(i)].append(new Date().getTime(), value);
-        })
-      };
+      // console.log();
+        if(!($scope.keys.indexOf(key)>-1)){ // if new key value, creat new data table
+          $scope.keys.push(key);
+          // connect smoothie object to html canvas
+          setTimeout(function(){
+          // create new smoothie chart and store in object by key
+          $scope.smoothieObj[key] = new SmoothieChart({millisPerPixel:43,
+            grid:{fillStyle:'#f3f3f3'},
+            labels:{fillStyle:'#000000'},
+            // maxValue:180,
+            // minValue:-180,
+            timestampFormatter:SmoothieChart.timeFormatter
+          });
+          // create html object canvas
+          $scope.smoothieObj[key].streamTo(document.getElementById(key));
+          data.forEach(function (value, i){ // for each value in array create different line
+            $scope.dataTables[key+String(i)] = [value];
+            // create new timeseries for key value
+            $scope.smoothieLines[key+String(i)] = new TimeSeries;
+            // add line to smoothie object
+            $scope.smoothieObj[key].addTimeSeries($scope.smoothieLines[key+String(i)], 
+              {lineWidth:2,strokeStyle:$scope.colors[i]});
+          })
+        }, 100);
+        }else{
+          data.forEach(function (value, i){
+            $scope.dataTables[key + String(i)].push(value);
+            // append new data to smoothie line
+            $scope.smoothieLines[key + String(i)].append(new Date().getTime(), value);
+          })
+        };
+    }
   });
+
+// --------------- PID tuning -------------
+$scope.placePIDValues = function(data){
+ var parameters = ["rkp", "rki", "rkd", "pkp", "pki", "pkd", "ykp", "yki", "ykd"];
+  var i = 0;
+  for(var i in parameters){
+    $scope.PIDparameters[parameters[i]] = data[i];
+  }
+  console.log($scope.PIDparameters);
+}
+
+
+$scope.sendPID = function(parameter){
+  socket.emit('setParameter', [parameter, $scope.PIDparameters[parameter]]);
+  setTimeout(function(){
+    socket.emit('getPIDValues');
+  }, 500);
+}
 
 // --------------- Download csv ------------
 $scope.getCSV = function (name){

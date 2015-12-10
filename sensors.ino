@@ -7,6 +7,22 @@ void initSensors(){
   prevTimeK = micros();
 }
 
+bool stable = false;
+void getMeanYaw(){
+  int samples = 50;
+  double yawArray[samples];
+  yawAvg = 0;
+  for(int i=0; i < samples; i++){
+      readSensors();
+      filterSensors();
+      yawArray[i-1] = yaw;
+  }
+  for(int j=0; j<samples; j++){
+      yawAvg += yawArray[j];
+  }
+  yawAvg = yawAvg/samples; // Get average of 50 yaw samples to get stable value
+}
+
 void readSensors(){
   mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
   aRoll = atan2(ay, az)*toDeg;
