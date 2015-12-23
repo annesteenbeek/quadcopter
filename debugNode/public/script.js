@@ -1,7 +1,7 @@
 'use strict';
 
 var app = angular.module('MyApp', ['ui.sortable']);
-var parameters = ["rkp", "rki", "rkd", "pkp", "pki", "pkd", "ykp", "yki", "ykd"];
+var parameters = ["rkp", "rki", "rkd", "pkp", "pki", "pkd", "ykp", "yki", "ykd", "rqa", "rqb", "rrm", "pqa", "pqb", "prm"];
 // --------------- socketio in angularjs ----------
 app.factory('socket', function ($rootScope) {
   var socket = io.connect();
@@ -32,7 +32,8 @@ var serialPortList = [];
 // ------------ AngularJS -------------------
 app.controller('nodeSerial', function($scope, socket){
   $scope.PIDparameters = [];
-  $scope.PIDparameters = {"rkp":0,"rki":0,"rkd":0,"pkp":0,"pki":0,"pkd":0,"ykp":0,"yki":0,"ykd":0};
+  $scope.PIDparameters = {"rkp":0,"rki":0,"rkd":0,"pkp":0,"pki":0,"pkd":0,"ykp":0,"yki":0,"ykd":0,
+                            "rqa":0, "rqb":0, "rrm":0, "pqa":0, "pqb":0, "prm":0};
   $scope.dataTables = {};
   $scope.isOpen = false;
   $scope.ports = ["..."];
@@ -144,6 +145,7 @@ $scope.placePIDValues = function(data){
 
 
 $scope.sendPID = function(parameter){
+  console.log("setting " + parameter + " " +  $scope.PIDparameters[parameter]);
   socket.emit('setParameter', [parameter, $scope.PIDparameters[parameter]]);
   setTimeout(function(){
     socket.emit('getPIDValues');

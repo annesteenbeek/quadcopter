@@ -75,6 +75,13 @@ double KpYaw = 1;
 double KiYaw = 0;
 double KdYaw = 0;
 
+double rollQAngle = 0;
+double rollQBias = 0;
+double rollRMeasure = 0;
+double pitchQAngle = 0;
+double pitchQBias = 0;
+double pitchRMeasure = 0;
+
 double PIDSampleTime = 0.01;
 
 String inData;

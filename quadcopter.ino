@@ -28,7 +28,7 @@ void setup() {
   initSensors();
   SetRCInterrupts(); // init RC
   motorInit();
-  getPIDValues();
+  getFilterValues();
   PIDinit();
 
   // radio pins
@@ -53,8 +53,6 @@ void loop() {
   writeMotors();
 
   debugProcess();
-  tunePIDSerial();
-
-
+  setFilterValues();
 } 
 
