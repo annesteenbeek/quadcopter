@@ -4,9 +4,9 @@ void PIDinit(){
     pitchPID.SetMode(AUTOMATIC);
     yawPID.SetMode(AUTOMATIC);
 
-    rollPID.SetOutputLimits(0, 254);
-    pitchPID.SetOutputLimits(0, 254);
-    yawPID.SetOutputLimits(0, 254);
+    rollPID.SetOutputLimits(-100, 100);
+    pitchPID.SetOutputLimits(-100, 100);
+    yawPID.SetOutputLimits(-100, 100);
 
     rollPID.SetSampleTime(PIDSampleTime);
     pitchPID.SetSampleTime(PIDSampleTime);
@@ -34,10 +34,24 @@ void writeMotors(){
   BLinput = (int) (RCthrottle + pitchPWM + rollPWM - yawPWM);
   BRinput = (int) (RCthrottle + pitchPWM - rollPWM + yawPWM);
 
-  FLinput = constrain(FLinput, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
-  FRinput = constrain(FRinput, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
-  BLinput = constrain(BLinput, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
-  BRinput = constrain(BRinput, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
+  // for ESC tuning
+  // FLinput=map(chan4,ch4min,ch4max,MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
+  // BRinput=map(chan4,ch4min,ch4max,MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
+  // FRinput=map(chan4,ch4min,ch4max,MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
+  // BLinput=map(chan4,ch4min,ch4max,MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
+
+  if(motorsEnable){
+    FLinput = constrain(FLinput, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
+    FRinput = constrain(FRinput, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
+    BLinput = constrain(BLinput, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
+    BRinput = constrain(BRinput, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
+  } else {
+    FLinput = MOTOR_ZERO_LEVEL;
+    FRinput = MOTOR_ZERO_LEVEL;
+    BLinput = MOTOR_ZERO_LEVEL;
+    BRinput = MOTOR_ZERO_LEVEL;
+  }
+
 
   analogWrite(FL, FLinput);
   analogWrite(FR, FRinput);

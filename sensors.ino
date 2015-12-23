@@ -1,3 +1,4 @@
+
 void initSensors(){
   Wire.begin();
   mpu.initialize();
@@ -5,22 +6,6 @@ void initSensors(){
 
   prevTimeG = micros();
   prevTimeK = micros();
-}
-
-bool stable = false;
-void getMeanYaw(){
-  int samples = 50;
-  double yawArray[samples];
-  yawAvg = 0;
-  for(int i=0; i < samples; i++){
-      readSensors();
-      filterSensors();
-      yawArray[i-1] = yaw;
-  }
-  for(int j=0; j<samples; j++){
-      yawAvg += yawArray[j];
-  }
-  yawAvg = yawAvg/samples; // Get average of 50 yaw samples to get stable value
 }
 
 void readSensors(){
@@ -50,7 +35,6 @@ void readSensors(){
 }
 
 void filterSensors(){
-
   double dT = (micros()- prevTimeK)/1000000;
   roll = kalmanRoll.getAngle(aRoll, dGRoll, dT);
   pitch = kalmanPitch.getAngle(aPitch, dGPitch, dT);

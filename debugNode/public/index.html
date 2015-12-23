@@ -5,31 +5,26 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title></title>
-  <link rel="stylesheet" type="text/css" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
-  <link href="/bower_components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
   <style> 
     .row{
       margin-top: 15px;
       margin-bottom: 15px;
     }
   </style>
-
-<script src="/bower_components/processing/processing.js"></script>
-<script src="/bower_components/smoothie/smoothie.js"></script>
-
 </head>
 <body ng-app="MyApp" ng-controller="nodeSerial">
-  <nav class="navbar navbar-default">
+  <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
       <div class="navbar-header">
         <form class="navbar-form navbar-left">
          <div class="input-group">
-           <select ng-click="serialRefresh()" ng-model="selectedPort" class="form-control">
-            <option ng-repeat="a in ports">{{a}}</option>
+           <select id="portSelector" ng-click="serialRefresh()" ng-model="selectedPort" class="form-control">
+            <option value="{{a}}"ng-repeat="a in ports">{{a}}</option>
           </select>
-          <span class="input-group-btn" ng-switch on="connected">
-          <button ng-switch-when="false" ng-click="connectSerial()"class="btn btn-default form-control">Connect Serial</button>
-          <button ng-switch-when="true" ng-click="disconnectSerial()"class="btn btn-default active form-control">Disconnect Serial</button>
+          <span class="input-group-btn" ng-switch on="isOpen">
+          <button ng-switch-when="false" ng-click="openSerial()"class="btn btn-default form-control">Open Serial</button>
+          <button ng-switch-when="true" ng-click="closeSerial()"class="btn btn-default active form-control">Close Serial</button>
           </span>
         </div>
       </form>
@@ -37,26 +32,49 @@
   </div>
 </nav>
 
-<div class="container">
+<div class="container" style="margin-top: 20px">
   <div class="page-header">
-    <h1>quadcopter</h1>
+    <h1>Quadcopter</h1>
   </div>
   <div class="col-md-2">
     <div class="row" ng-repeat="(key, value) in PIDparameters">
       <h4>{{key}}</h4>
+      <form ng-submit="sendPID(key)" class="form-inline">
       <div class="input-group">
         <span class="input-group-btn">
         <button class="btn btn-default" type="button" ng-click="sendPID(key)">Send</button>
         </span>
-        <input type="text" class="form-control" placeholder="value" ng-model="PIDparameters[key]">
+        <input id="spinner{{key}}" type="text" class="form-control" placeholder="value" ng-model="PIDparameters[key]">
       </div><!-- /input-group -->
+      </form>
     </div><!-- /row -->
   </div>
   <div class="col-md-10">
     <div class="row" ng-repeat="key in keys">
       <div class="col-md-8">
         <h3>{{key}}</h3>
-        <canvas class="pull-right" id="{{key}}" width="400" height="150"></canvas>
+        <canvas class="center-block" id="{{key}}" width="400" height="150"></canvas>
+        <div class="clearfix"></div><!-- /.clearfix -->
+        <div class="row">
+          <div class="col-md-10">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-addon">Min</span>
+                  <input type="text" class="form-control" ng-model="smoothieObj[key].options.minValue"
+                  placeholder='{{smoothieObj[key].currentVisMinValue | number:3}}'
+                  ng-change="rangeChange(key)">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="input-group">
+                  <span class="input-group-addon">Max</span>
+                  <input type="text" class="form-control" ng-model="smoothieObj[key].options.maxValue"
+                  placeholder='{{smoothieObj[key].currentVisMinValue+smoothieObj[key].currentValueRange | number:3}}'
+                  ng-change="rangeChange(key)">
+                </div>
+              </div>
+          </div>
+        </div><!-- /.row -->
       </div>
       <div class="col-md-2">
         <a class="btn btn-primary" ng-click="getCSV(key)">Download {{key}}</a>
@@ -67,17 +85,13 @@
 </div>
 </div>
 
-<script src="/bower_components/socket.io-client/dist/socket.io.min.js"></script>
-<script src="/bower_components/angular/angular.js"></script>
-<script src="/bower_components/jquery/dist/jquery.min.js"></script>
-<script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-<script src="/bower_components/bootstrap-switch/dist/js/bootstrap-switch.js"></script>
+<script src="/js/socket.io.min.js"></script>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/angular.min.js"></script>
+<script src="/js/jquery-ui.min.js"></script>
+<script src="/js/sortable.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/smoothie.js"></script>
 <script type="application/javascript" src="script.js"></script>
-<script>
-  function changeAngles(id, theta1, theta2) {
-    var pjs = Processing.getInstanceById(id);
-    pjs.setAngles(theta1, theta2);
-  }
-</script>
 </body>
 </html>

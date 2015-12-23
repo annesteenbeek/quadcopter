@@ -1,6 +1,7 @@
 'use strict';
 
-var app = angular.module('MyApp', []);
+var app = angular.module('MyApp', ['ui.sortable']);
+var parameters = ["rkp", "rki", "rkd", "pkp", "pki", "pkd", "ykp", "yki", "ykd"];
 // --------------- socketio in angularjs ----------
 app.factory('socket', function ($rootScope) {
   var socket = io.connect();
@@ -32,9 +33,8 @@ var serialPortList = [];
 app.controller('nodeSerial', function($scope, socket){
   $scope.PIDparameters = [];
   $scope.PIDparameters = {"rkp":0,"rki":0,"rkd":0,"pkp":0,"pki":0,"pkd":0,"ykp":0,"yki":0,"ykd":0};
-
   $scope.dataTables = {};
-  $scope.connected = false;
+  $scope.isOpen = false;
   $scope.ports = ["..."];
   $scope.keys = [];
   $scope.smoothieObj = {};
@@ -46,21 +46,32 @@ app.controller('nodeSerial', function($scope, socket){
     $scope.ports = input;
   });
 
-  socket.on("connectedSerial", function (input){
-    console.log("connected to port: "+input);
-    $scope.connected = true;
-    setInterval(function(){
-      socket.emit('getPIDValues');
-    }, 5000);
+  socket.on("openedSerial", function (input){
+    console.log("opened serialport: "+input);
+    $scope.isOpen = true;
+    var dropdown = document.getElementById('portSelector');
+    setTimeout(function(){ // wait to set value to allow angular to create portlist
+      dropdown.value = input;
+    },500);
+    socket.emit('getPIDValues');
+    // start smoothie graphs in case they were stopped
+    for(var key in $scope.smoothieObj){
+      $scope.smoothieObj[key].start();
+    }
+
+
   });
 
   socket.on("failed", function (input){
     console.log("failed to connect: "+input);
   });
 
-  socket.on("disconnected", function (input){
-    console.log("disconnected from port: "+input);
-    $scope.connected = false;
+  socket.on("serialClosed", function (input){
+    console.log("Closed serialPort: "+input);
+    $scope.isOpen = false;
+    for(var key in $scope.smoothieObj){
+      $scope.smoothieObj[key].stop();
+    }
   });
 
 // ------------ Inputs ----------------
@@ -68,46 +79,62 @@ app.controller('nodeSerial', function($scope, socket){
     var key = input.shift();
     var data = input;
     if(key=="PIDvalues"){
-      console.log(data);
       $scope.placePIDValues(data);
       }else{
-      // console.log();
         if(!($scope.keys.indexOf(key)>-1)){ // if new key value, creat new data table
           $scope.keys.push(key);
           // connect smoothie object to html canvas
-          setTimeout(function(){
           // create new smoothie chart and store in object by key
           $scope.smoothieObj[key] = new SmoothieChart({millisPerPixel:43,
             grid:{fillStyle:'#f3f3f3'},
             labels:{fillStyle:'#000000'},
-            // maxValue:180,
-            // minValue:-180,
             timestampFormatter:SmoothieChart.timeFormatter
           });
-          // create html object canvas
-          $scope.smoothieObj[key].streamTo(document.getElementById(key));
           data.forEach(function (value, i){ // for each value in array create different line
             $scope.dataTables[key+String(i)] = [value];
-            // create new timeseries for key value
-            $scope.smoothieLines[key+String(i)] = new TimeSeries;
-            // add line to smoothie object
-            $scope.smoothieObj[key].addTimeSeries($scope.smoothieLines[key+String(i)], 
-              {lineWidth:2,strokeStyle:$scope.colors[i]});
-          })
-        }, 100);
+          });
+          // create html object canvas
+          setTimeout(function(){  // use timeout to make sure ng-repeate has finished for new key
+          $scope.smoothieObj[key].streamTo(document.getElementById(key));
+            data.forEach(function (value, i){ // for each value in array create different line
+              // create new timeseries for key value
+              $scope.smoothieLines[key+String(i)] = new TimeSeries;
+              // add line to smoothie object
+              $scope.smoothieObj[key].addTimeSeries($scope.smoothieLines[key+String(i)], 
+                {lineWidth:2,strokeStyle:$scope.colors[i]});
+            })
+          }, 100);
         }else{
           data.forEach(function (value, i){
-            $scope.dataTables[key + String(i)].push(value);
-            // append new data to smoothie line
-            $scope.smoothieLines[key + String(i)].append(new Date().getTime(), value);
+            var dataTable = $scope.dataTables[key + String(i)];
+            dataTable.push(value);
+            var maxArrayLength = 400;
+            if(dataTable.length > maxArrayLength){
+              dataTable.shift(); // remove first element if array gets too long
+            } 
+            // prevent errors because of delay in canvas creation (first elements are still stored in csv)
+            // could be improved by use of buffer for the value
+            if(typeof $scope.smoothieLines[key + String(i)] != 'undefined'){
+              $scope.smoothieLines[key + String(i)].append(new Date().getTime(), value);
+            }
           })
         };
     }
   });
 
+  // allow changing back to autoscale
+  $scope.rangeChange = function(graphKey){
+    var obj = $scope.smoothieObj[graphKey].options;
+    if(obj.minValue==""){
+      delete obj.minValue;
+    }
+    if(obj.maxValue==""){
+      delete obj.maxValue;
+    }
+  }
+
 // --------------- PID tuning -------------
 $scope.placePIDValues = function(data){
- var parameters = ["rkp", "rki", "rkd", "pkp", "pki", "pkd", "ykp", "yki", "ykd"];
   var i = 0;
   for(var i in parameters){
     $scope.PIDparameters[parameters[i]] = data[i];
@@ -126,50 +153,48 @@ $scope.sendPID = function(parameter){
 // --------------- Download csv ------------
 $scope.getCSV = function (name){
   var csvContent = "data:text/csv;charset=utf-8,";
-  data = [$scope.dataTables[name]];
-       data.forEach(function(infoArray, index){ 
-          dataString = infoArray.join("\n"); 
-          csvContent += index < infoArray.length ? dataString+ "\n" : dataString;  
-        });
-       console.log(dataString);
+  var hasNewArray = true;
+  var i = 0;
+  while(hasNewArray){
+    var dataArray = $scope.dataTables[name + String(i)];
+    if(typeof dataArray === 'undefined'){
+      hasNewArray = false;
+    } else {
+      var data = [dataArray]; // take into account multiple arrays
+      data.forEach(function(dataObject, index){ 
+         var dataString = dataObject.join("\t"); 
+           csvContent += index < dataObject.length ? dataString + "\t" : dataString;
+           csvContent += "\n";  
+        i++;
+      });
+    }
+  }
     var encodedUri = encodeURI(csvContent);
-    // window.open(encodedUri);
     // dirty method to set download name
     var link = document.createElement("a");    
     link.href = encodedUri;
 
     //set the visibility hidden so it will not effect on your web-layout
-    link.style = "visibility:hidden";
+    // link.style = "visibility:hidden";
     link.download = name + ".csv";
     //this part will append the anchor tag and remove it after automatic click
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 };
-//-------------- Plotting --------------
 
 // ------------ Serial port setup ------
   $scope.serialRefresh = function(){
   socket.emit('serialRefresh');
   };
 
-  $scope.connectSerial = function(){
-    console.log("Connecting to: "+$scope.selectedPort);
-    socket.emit('connectSerial', $scope.selectedPort)
+  $scope.openSerial = function(){
+    // use jquery to get selected text because of issues with angular after page reload
+    console.log("Opening: "+$("#portSelector option:selected").text());
+    socket.emit('openSerial', $("#portSelector option:selected").text())
   };
-  $scope.disconnectSerial = function(){
-    console.log("Disconnecting serialport");
-    socket.emit('disconnectSerial');
+  $scope.closeSerial = function(){
+    console.log("Closing serialport");
+    socket.emit('closeSerial');
   };
 })
-
-
-// creat dyanimc functions:
-
-// var func = {};
-// var name = "foo";
-//  func.one = new Function(
-//      "return function " + name + "(word){ alert(word)}"
-// )();
-
-// func.one("hello");

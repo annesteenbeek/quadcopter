@@ -11,6 +11,7 @@
     "bootstrap": "*",
     "processing": "*",
     "jquery": "*",
-    "angular-bootstrap-switch": "*"
+    "angular-bootstrap-switch": "*",
+    "angular-ui-sortable": "~0.13.4"
   }
 }

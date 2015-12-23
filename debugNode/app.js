@@ -14,7 +14,6 @@ console.log("Created server on port: " + server.address().port)
 var skipLines = 0;
 // ------- Setup CSV ---------
 var storeData = {};
-
 // -------- Setup serial --------
 var serialName = ' '; // start with empty port
 var serial = new serialport.SerialPort(serialName,{
@@ -28,7 +27,6 @@ var serial = new serialport.SerialPort(serialName,{
 
 
 // --------- Recieved sockets -------
-
 io.sockets.on('connection', function (socket) {
 	//Connecting to client 
 	console.log('Socket connected');
@@ -37,15 +35,9 @@ io.sockets.on('connection', function (socket) {
 		socket.emit('serialPorts', portList);  // on connection, emit serialports
 	});
 
-	serial.on('data', function(data){
-		console.log(data);
-		if (skipLines==10){ // lines to skip to prevent broken lines at startup
-			parseSerial(socket, data);
-		}else{
-			console.log("skipped: " + data);
-			skipLines = skipLines +1;
-		};
-	});
+	if(serial.isOpen()){ // if allready connected to serial, send name
+		socket.emit('openedSerial', serial.path);
+	}
 
 	socket.on('serialRefresh', function(){
 		getSerialPorts(function(portList){
@@ -53,48 +45,55 @@ io.sockets.on('connection', function (socket) {
 		});
 	});
 
-	socket.on('connectSerial', function(port){
-		connectSerial(port, function(result){
-			socket.emit(result[0], result[1]); // emit failed or connected
-		});
+	socket.on('openSerial', function(port){
+		openSerial(port);
 	});
 
-	socket.on('disconnectSerial', function(){
-		disconnectSerial(function(result){
-			socket.emit(result[0], result[1]); // emit conformation of disconnect
-		});
+	socket.on('closeSerial', function(){
+		closeSerial()
 	});
 
 	socket.on('getPIDValues', function(){
-		console.log("getting PID VALUES!!!!!!!!!!!!!")
-		serial.write('getPIDValues\n');
+		if (serial.isOpen()) {
+			serial.write('getPIDValues\n');
+		} else {
+			console.log("serial not open");
+		}
 	});
 
 	socket.on('setParameter', function(data){
-		serial.write(data[0] + " " + data[1] + "\n");
+		if (serial.isOpen()) {
+			serial.write(data[0] + " " + data[1] + "\n");
+		} else {
+			console.log("serial not open");
+		}
 	})
 
 });
 
-// --------- functions ---------------
-
-function parseSerial(socket, data){
+function parseSerial(data){
+	// console.log(data);
+	if (skipLines==10){ // lines to skip to prevent broken lines at startup
 		data = data.split("\t"); // split data in array by tabs
-		data.forEach(function(dataset){
+		data.forEach(function (dataset){
 			dataset = dataset.split(" "); // split subset by spaces
-			socket.emit("serialData", dataset); // emit every key and their values
+			io.sockets.emit("serialData", dataset); // emit every key and their values
 		});
-};
+	}else{
+		console.log("skipped: " + data);
+		skipLines = skipLines +1;
+	};
+}
 
+// --------- functions ---------------
 function getSerialPorts(callback){
 	var portNames = [];
-	// list all ports and connect to first serial port on default
 	serialport.list(function (err, portList) {
 	  portList.forEach(function(port) {
+	  	console.log(port);
 	    portNames.push(port.comName);
 	  });
 	    if (portNames.length > 0) {
-	    	// console.log(portNames);
 	    	callback(portNames);
 	    }else{
 	    	console.log("No serialports available.");
@@ -103,27 +102,44 @@ function getSerialPorts(callback){
 	});
 };
 
-function connectSerial(portName, callback){
-	if(serial.isOpen()){
-		serial.close();
+function openSerial(portName){
+	if (portName != null) { // check if no empty port has ben send
+		if(serial.isOpen()){
+			serial.close();
+		}
+		serial.path = portName;
+		serial.open(function (error) { // open the port and handle possible errors
+		  	if ( error ) {
+		    	console.log('failed to open serial: '+error);
+		    	io.sockets.emit('failed', error);
+		  	} else {
+			    console.log('opened Serial');
+			    io.sockets.emit('openedSerial', serial.path)
+		    };
+		});
+		serial.on('error', function(error){ // handle possible serial error
+			console.log("warning, Serial error: " + error)
+			io.sockets.emit('serialError', error);
+		});
+
+		serial.on('close', function(){
+			console.log("Closed serial port: "+serial.path);
+			io.sockets.emit('serialClosed', serial.path); // emit conformation of disconnect
+			serial.path = "";
+		});
+
+		serial.on('data', function (data){ // parse all the serial data
+			parseSerial(data); 
+		});	
+
+	} else {
+		console.log("No serial port selected");
 	}
-	serial.path = portName;
-	serial.open(function (error) {
-	  	if ( error ) {
-	    	console.log('failed to open serial: '+error);
-	    	callback(["failed", error]);
-	  	} else {
-		    console.log('opened Serial');
-		    callback(["connectedSerial", portName]);
-	    };
-	});
 };
 
-function disconnectSerial(callback){
+function closeSerial(){
 	skipLines = 0; // serial needs to buffer again at startup
 	if(serial.isOpen()){
 		serial.close();
-		console.log("Disconnected from: "+serial.path);
-		callback(["disconnected", serial.path]);
 	};
 };
