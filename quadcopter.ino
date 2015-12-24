@@ -3,18 +3,18 @@
 #include "Wire.h"
 #include "HMC5883L.h" // Source: https://github.com/jrowberg/i2cdevlib
 #include "PinChangeInt.h"
-#include "Kalman.h"
 #include "config.h"
 #include "RCLib.h" // Source: https://github.com/jantje/libraries/tree/master/RCLib
 #include "PID_v1.h"
+#include "compfilter.h"
 #include <EEPROM.h>
 
 
 MPU6050 mpu;    // define mpu
 HMC5883L mag; // define compass
 
-Kalman kalmanRoll;
-Kalman kalmanPitch;
+compfilter compRoll;
+compfilter compPitch;
 
 // create PID filter isntances
 PID rollPID(&roll, &rollPWM, &RCroll, KpRoll, KiRoll, KdRoll, DIRECT);

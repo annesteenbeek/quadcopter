@@ -35,10 +35,8 @@ void readSensors(){
 }
 
 void filterSensors(){
-  double dT = (micros()- prevTimeK)/1000000;
-  roll = kalmanRoll.getAngle(aRoll, dGRoll, dT);
-  pitch = kalmanPitch.getAngle(aPitch, dGPitch, dT);
-  prevTimeK = micros();
+  roll = compRoll.compute(dGRoll, aRoll, tau);
+  pitch = compPitch.compute(dGPitch, aPitch, tau);
   yaw = tiltCompensateYaw(mx, my, mz, roll, pitch);
 
 }

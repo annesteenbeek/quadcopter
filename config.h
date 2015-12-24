@@ -8,7 +8,7 @@ double dGRoll, dGPitch, dGYaw;
 double gRoll, gPitch, gYaw;
 double roll, pitch, yaw;
 
-double yawAvg;
+double tau = 0.075;
 
 double prevTimeG;
 double prevTimeK;
@@ -74,13 +74,6 @@ double KdPitch = 0;
 double KpYaw = 1;
 double KiYaw = 0;
 double KdYaw = 0;
-
-double rollQAngle = 0;
-double rollQBias = 0;
-double rollRMeasure = 0;
-double pitchQAngle = 0;
-double pitchQBias = 0;
-double pitchRMeasure = 0;
 
 double PIDSampleTime = 0.01;
 

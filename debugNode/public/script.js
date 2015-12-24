@@ -1,7 +1,7 @@
 'use strict';
 
 var app = angular.module('MyApp', ['ui.sortable']);
-var parameters = ["rkp", "rki", "rkd", "pkp", "pki", "pkd", "ykp", "yki", "ykd", "rqa", "rqb", "rrm", "pqa", "pqb", "prm"];
+var parameters = ["rkp", "rki", "rkd", "pkp", "pki", "pkd", "ykp", "yki", "ykd", "tau"];
 // --------------- socketio in angularjs ----------
 app.factory('socket', function ($rootScope) {
   var socket = io.connect();
@@ -33,7 +33,7 @@ var serialPortList = [];
 app.controller('nodeSerial', function($scope, socket){
   $scope.PIDparameters = [];
   $scope.PIDparameters = {"rkp":0,"rki":0,"rkd":0,"pkp":0,"pki":0,"pkd":0,"ykp":0,"yki":0,"ykd":0,
-                            "rqa":0, "rqb":0, "rrm":0, "pqa":0, "pqb":0, "prm":0};
+                            "tau":0};
   $scope.dataTables = {};
   $scope.isOpen = false;
   $scope.ports = ["..."];
@@ -164,8 +164,8 @@ $scope.getCSV = function (name){
     } else {
       var data = [dataArray]; // take into account multiple arrays
       data.forEach(function(dataObject, index){ 
-         var dataString = dataObject.join("\t"); 
-           csvContent += index < dataObject.length ? dataString + "\t" : dataString;
+         var dataString = dataObject.join(","); 
+           csvContent += index < dataObject.length ? dataString + "," : dataString;
            csvContent += "\n";  
         i++;
       });

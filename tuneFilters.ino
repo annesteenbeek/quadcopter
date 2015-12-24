@@ -2,7 +2,7 @@
 void getFilterValues(){ // get old Filter values from EEPROM
 
     // store values as floats, after read, convert back to double
-    for (int i =0; i<15; i++){
+    for (int i =0; i<10; i++){
         float f = 0.00f; // store float read from EEPROM
         EEPROM.get(i*sizeof(float), f);
         if(f != f){ // filter out possible NaN values
@@ -36,24 +36,8 @@ void getFilterValues(){ // get old Filter values from EEPROM
                 case 8:
                     KdYaw = (double) f;
                     break;
-                // get Kalman Filter Values
                 case 9:
-                    rollQAngle = (double) f;
-                    break;
-                case 10: 
-                    rollQBias = (double) f;
-                    break;
-                case 11: 
-                    rollRMeasure = (double) f;
-                    break;
-                case 12:
-                    pitchQAngle = (double) f;
-                    break;
-                case 13:
-                    pitchQBias = (double) f;
-                    break;
-                case 14: 
-                    pitchRMeasure = (double) f;
+                    tau = (double) f;
                     break;
             }
         f = 0.00;
@@ -61,13 +45,6 @@ void getFilterValues(){ // get old Filter values from EEPROM
     rollPID.SetTunings(KpRoll, KiRoll, KdRoll);
     pitchPID.SetTunings(KpPitch, KiPitch, KdPitch);
     yawPID.SetTunings(KpYaw, KiYaw, KdYaw);
-    // set Kalman values
-    kalmanRoll.setQangle(rollQAngle);
-    kalmanRoll.setQbias(rollQBias);
-    kalmanRoll.setRmeasure(rollRMeasure);
-    kalmanPitch.setQangle(pitchQAngle);
-    kalmanPitch.setQbias(pitchQBias);
-    kalmanPitch.setRmeasure(pitchRMeasure);
 }
 
 void setFilterValues(){
@@ -120,61 +97,29 @@ void setFilterValues(){
                 KdYaw = newValue;
                 EEPROM.put(8*sizeof(float), (float) newValue);
             }
-            if (command=="rqa"){
-                rollQAngle = newValue;
+            if (command=="tau"){
+                tau = newValue;
                 EEPROM.put(9*sizeof(float), (float) newValue);
-            }
-            if (command=="rqb"){
-                rollQBias = newValue;
-                EEPROM.put(10*sizeof(float), (float) newValue);
-            }
-            if (command=="rrm"){
-                rollRMeasure = newValue;
-                EEPROM.put(11*sizeof(float), (float) newValue);
-            }
-            if (command=="pqa"){
-                pitchQAngle = newValue;
-                EEPROM.put(12*sizeof(float), (float) newValue);
-            }
-            if (command=="pqb"){
-                pitchQBias = newValue;
-                EEPROM.put(13*sizeof(float), (float) newValue);
-            }
-            if (command=="prm"){
-                pitchRMeasure = newValue;
-                EEPROM.put(14*sizeof(float), (float) newValue);
             }
 
             if (inData=="getPIDValues"){
-                Serial.print("PIDvalues ");  Serial.print(rollPID.GetKp());
-                Serial.print(" ");  Serial.print(rollPID.GetKi());
-                Serial.print(" ");  Serial.print(rollPID.GetKd());
-                Serial.print(" ");  Serial.print(pitchPID.GetKp());
-                Serial.print(" ");  Serial.print(pitchPID.GetKi());
-                Serial.print(" ");  Serial.print(pitchPID.GetKd());
-                Serial.print(" ");  Serial.print(yawPID.GetKp());
-                Serial.print(" ");  Serial.print(yawPID.GetKi());
-                Serial.print(" ");  Serial.print(yawPID.GetKd()); 
-                // kalman values
-                Serial.print(" ");  Serial.print(kalmanRoll.getQangle());
-                Serial.print(" ");  Serial.print(kalmanRoll.getQbias());
-                Serial.print(" ");  Serial.print(kalmanRoll.getRmeasure());
-                Serial.print(" ");  Serial.print(kalmanPitch.getQangle());
-                Serial.print(" ");  Serial.print(kalmanPitch.getQbias());
-                Serial.print(" ");  Serial.print(kalmanPitch.getRmeasure());
+                Serial.print("PIDvalues ");  
+                Serial.print(rollPID.GetKp(), 4);
+                Serial.print(" ");  Serial.print(rollPID.GetKi(), 4);
+                Serial.print(" ");  Serial.print(rollPID.GetKd(), 4);
+                Serial.print(" ");  Serial.print(pitchPID.GetKp(), 4);
+                Serial.print(" ");  Serial.print(pitchPID.GetKi(), 4);
+                Serial.print(" ");  Serial.print(pitchPID.GetKd(), 4);
+                Serial.print(" ");  Serial.print(yawPID.GetKp(), 4);
+                Serial.print(" ");  Serial.print(yawPID.GetKi(), 4);
+                Serial.print(" ");  Serial.print(yawPID.GetKd(), 4);
+                Serial.print(" ");  Serial.print(tau, 4);
                 Serial.print("\n");
             }
 
             rollPID.SetTunings(KpRoll, KiRoll, KdRoll);
             pitchPID.SetTunings(KpPitch, KiPitch, KdPitch);
             yawPID.SetTunings(KpYaw, KiYaw, KdYaw);
-            // kalman values
-            kalmanRoll.setQangle(rollQAngle);
-            kalmanRoll.setQbias(rollQBias);
-            kalmanRoll.setRmeasure(rollRMeasure);
-            kalmanPitch.setQangle(pitchQAngle);
-            kalmanPitch.setQbias(pitchQBias);
-            kalmanPitch.setRmeasure(pitchRMeasure);
 
             inData = ""; // Clear recieved buffer
         }
